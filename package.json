@@ -1,0 +1,23 @@
+{
+  "name": "honeydrunk-ui",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.mjs",
+    "lint": "eslint packages tests"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.18",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-web": "0.21.3",
+    "typescript": "6.0.3",
+    "eslint": "9.39.5",
+    "eslint-config-expo": "57.0.2"
+  }
+}
