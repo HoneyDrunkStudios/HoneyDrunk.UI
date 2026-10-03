@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useState } from "react";
+import React, { useId, useState, useSyncExternalStore } from "react";
 import {
   Pressable,
   Text,
@@ -16,6 +16,9 @@ import type {
 } from "react-native";
 import { createStyles, buttonAppearance, focusAppearance } from "./styles";
 import { useTheme } from "./theme";
+import { createReducedMotionStore } from "./reducedMotion";
+
+const reducedMotion = createReducedMotionStore(AccessibilityInfo);
 export { ThemeProvider, useTheme } from "./theme";
 export { createStyles, buttonAppearance, focusAppearance } from "./styles";
 export { Badge, Progress } from "./status";
@@ -175,37 +178,13 @@ export function Input({
   );
 }
 
-function useReducedMotion() {
-  // Start static until the host preference is known.
-  const [reduced, setReduced] = useState(true);
-  useEffect(() => {
-    let active = true;
-    let changed = false;
-    const subscription = AccessibilityInfo.addEventListener(
-      "reduceMotionChanged",
-      (value) => {
-        changed = true;
-        setReduced(value);
-      },
-    );
-    void AccessibilityInfo.isReduceMotionEnabled()
-      .then((value) => {
-        if (active && !changed) setReduced(value);
-      })
-      .catch(() => {
-        /* Keep the static fallback if the host preference cannot be read. */
-      });
-    return () => {
-      active = false;
-      subscription.remove();
-    };
-  }, []);
-  return reduced;
-}
-
 export function Loading({ label }: { label: string }) {
   const theme = useTheme();
-  const reduced = useReducedMotion();
+  const reduced = useSyncExternalStore(
+    reducedMotion.subscribe,
+    reducedMotion.getSnapshot,
+    reducedMotion.getServerSnapshot,
+  );
   if (reduced)
     return (
       <Text

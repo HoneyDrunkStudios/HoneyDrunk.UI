@@ -179,3 +179,55 @@ test("loading follows reduced-motion preference changes while mounted", async ({
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await expect(loading).not.toHaveText("Loading information");
 });
+
+for (const removed of ["first", "second"]) {
+  test(`multiple loaders retain motion updates after removing the ${removed} loader`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.goto("/?loaders");
+    const first = page.getByRole("progressbar", {
+      name: "First loader",
+      exact: true,
+    });
+    const second = page.getByRole("progressbar", {
+      name: "Second loader",
+      exact: true,
+    });
+    await expect(first).toBeVisible();
+    await expect(second).toBeVisible();
+    await expect(first).toHaveText("");
+    await expect(second).toHaveText("");
+    await page
+      .getByRole("button", { name: `Toggle ${removed} loader`, exact: true })
+      .click();
+    const remaining = removed === "first" ? second : first;
+    const remainingLabel =
+      removed === "first" ? "Second loader" : "First loader";
+    await expect(removed === "first" ? first : second).toHaveCount(0);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect(remaining).toHaveText(remainingLabel);
+    await expect(remaining).toHaveAttribute("aria-busy", "true");
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await expect(remaining).toHaveText("");
+
+    // Dispose the final subscriber, change the preference, then reconnect both.
+    const other = removed === "first" ? "second" : "first";
+    await page
+      .getByRole("button", { name: `Toggle ${other} loader`, exact: true })
+      .click();
+    await expect(page.getByRole("progressbar")).toHaveCount(0);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page
+      .getByRole("button", { name: "Toggle first loader", exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: "Toggle second loader", exact: true })
+      .click();
+    await expect(first).toHaveText("First loader");
+    await expect(second).toHaveText("Second loader");
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await expect(first).toHaveText("");
+    await expect(second).toHaveText("");
+  });
+}

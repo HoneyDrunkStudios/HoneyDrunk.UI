@@ -15,9 +15,9 @@ HoneyDrunk.Standards supplies .NET analyzers, test stack and coverage assets. No
 | Layer | Command / evidence | Purpose |
 |---|---|---|
 | Static contracts | `npm run typecheck` including `tests/contracts.tsx` | Original Theme shape and calls still compile; missing required new labels and invalid value types fail compilation |
-| Unit/component/contract | `npm test` | Defaults/custom tokens, no theme mutation, real SSR primitives, roles/names/states, error association, range edges, native progress host-prop mapping, reduced-motion SSR, text/boundary/opacity contrast |
+| Unit/component/contract | `npm test` | Defaults/custom tokens, no theme mutation, real SSR primitives, roles/names/states, error association, range edges, native progress host-prop mapping, reduced-motion SSR/shared-subscription lifecycle/query races, text/boundary/opacity contrast |
 | Consumer integration/build | `npm run build` | Emits declarations and bundles actual source package imports through RN Web with esbuild; no guessed registry releases |
-| Browser integration | `npm run test:web` | Actual Chromium events, Enter/Space/Tab, focus outline, disabled/busy guards, theme update, error toggle without input remount, RTL and narrow layout |
+| Browser integration | `npm run test:web` | Actual Chromium events, Enter/Space/Tab, focus outline, disabled/busy guards, theme update, error toggle without input remount, RTL, narrow layout, multiple-loader unmount orders and motion changes after reconnect |
 | Automated accessibility | Browser test's axe A/AA scans | `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`, `wcag22aa`, both generic themes in busy/error states; no excluded rules or ignored violations |
 | Manual web visual review | `artifacts/screenshots/*.png` | Inspect dark/light/large-text fixtures; screenshots are review artifacts, not a regression baseline |
 
@@ -36,6 +36,8 @@ If native JS component failures appear, add SDK-matched `jest-expo` and React Na
 On at least one real iOS and Android phone and a small supported layout, record OS, device, build revision and theme. Verify VoiceOver/TalkBack names, roles, busy/disabled/range values, error discovery, announcement timing and logical traversal. Test hardware keyboard focus, 200% system text, longer localized text, both light/dark palettes, RTL, reduced motion before and during loading, no clipping, reachable actions and 44-point iOS / 48-dp Android targets. Browser token scaling is only a reflow simulation; it is not native Dynamic Type verification.
 
 Progress host-prop tests verify the native numeric boundary without running a native renderer. Include fractional and large custom ranges in device acceptance: native receives a rounded percentage, web retains the original range, and app-localized `valueText` carries units or finer precision. Host-prop assertions do not establish actual VoiceOver/TalkBack announcements.
+
+Loading uses a shared `AccessibilityInfo` subscription through React's [external-store hook](https://react.dev/reference/react/useSyncExternalStore), with a static server snapshot and no subscription during server rendering. Browser regressions cover both two-loader unmount orders and removing/reconnecting all loaders. Adapter unit tests cover shared listener ownership, query/event races, stale callbacks after disposal, query failure and unavailable host subscriptions. Native device motion changes still need acceptance testing.
 
 Inspect every app palette and actual adjacent surface. Text needs 4.5:1, essential boundaries/focus/progress fill need 3:1, and opacity-composited text needs review. Themeability means arbitrary app overrides can fail these requirements. Native live-region behavior differs: Android/web polite regions are covered structurally; iOS consumers must choose and verify deliberate [AccessibilityInfo announcements](https://reactnative.dev/docs/0.86/accessibilityinfo). Announce transitions once rather than repeated renders; keep celebratory motion optional and provide static readable confirmation.
 

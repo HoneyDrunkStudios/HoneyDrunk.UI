@@ -89,6 +89,22 @@ function Controls({ toggleTheme }: { toggleTheme(): void }) {
     </View>
   );
 }
+function LoadingLifecycle() {
+  const [first, setFirst] = useState(true);
+  const [second, setSecond] = useState(true);
+  return (
+    <Card>
+      <Button title="Toggle first loader" onPress={() => setFirst((n) => !n)} />
+      <Button
+        title="Toggle second loader"
+        onPress={() => setSecond((n) => !n)}
+      />
+      {first ? <Loading label="First loader" /> : null}
+      {second ? <Loading label="Second loader" /> : null}
+    </Card>
+  );
+}
+
 function Fixture() {
   const [isDark, setDark] = useState(true);
   const base = isDark ? dark : light;
@@ -108,7 +124,11 @@ function Fixture() {
   };
   return (
     <ThemeProvider theme={theme}>
-      <Controls toggleTheme={() => setDark((n) => !n)} />
+      {new URLSearchParams(window.location.search).has("loaders") ? (
+        <LoadingLifecycle />
+      ) : (
+        <Controls toggleTheme={() => setDark((n) => !n)} />
+      )}
     </ThemeProvider>
   );
 }
