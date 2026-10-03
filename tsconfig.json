@@ -9,5 +9,10 @@
     "skipLibCheck": true,
     "esModuleInterop": true
   },
-  "include": ["packages/**/*.ts", "packages/**/*.tsx"]
+  "include": [
+    "packages/**/*.ts",
+    "packages/**/*.tsx",
+    "tests/**/*.ts",
+    "tests/**/*.tsx"
+  ]
 }

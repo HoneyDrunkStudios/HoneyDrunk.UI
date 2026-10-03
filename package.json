@@ -7,17 +7,24 @@
   ],
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.build.json && node scripts/build.mjs",
+    "test:web": "npm run build && playwright test",
+    "validate": "npm run typecheck && npm run lint && npm test && npm run test:web",
     "test": "node --test tests/*.test.mjs",
-    "lint": "eslint packages tests"
+    "lint": "eslint packages tests scripts playwright.config.mjs --max-warnings=0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.63.0",
     "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
+    "esbuild": "0.28.2",
+    "eslint": "9.39.5",
+    "eslint-config-expo": "57.0.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.3",
     "react-native-web": "0.21.3",
-    "typescript": "6.0.3",
-    "eslint": "9.39.5",
-    "eslint-config-expo": "57.0.2"
+    "typescript": "6.0.3"
   }
 }
