@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 import type { ViewProps } from "react-native";
 import { useTheme } from "./theme";
 import { createStyles } from "./styles";
@@ -38,7 +38,7 @@ export interface ProgressProps extends Pick<ViewProps, "testID"> {
   value: number;
   min?: number;
   max?: number;
-  /** Optional app-localized value description. Native readers otherwise announce the range. */
+  /** App-localized value description. Native readers otherwise receive a rounded percentage. */
   valueText?: string;
 }
 
@@ -59,20 +59,28 @@ export function Progress({
   const theme = useTheme();
   const styles = createStyles(theme);
   const now = Math.min(max, Math.max(min, value));
-  // Scale before subtraction so opposite finite extremes cannot overflow.
-  const scale = Math.max(Math.abs(min), Math.abs(max), 1);
-  const fraction = (now / scale - min / scale) / (max / scale - min / scale);
+  const span = max - min;
+  // Subtract first to preserve narrow ranges; halve only when the span overflows.
+  const fraction = Number.isFinite(span)
+    ? (now - min) / span
+    : (now / 2 - min / 2) / (max / 2 - min / 2);
+  // RN's Android delegate reads integer values. Normalize native ranges so
+  // fractional or large app values cannot collapse or overflow at that boundary.
+  const accessibilityValue =
+    Platform.OS === "web"
+      ? { min, max, now, text: valueText }
+      : { min: 0, max: 100, now: Math.round(fraction * 100), text: valueText };
   return (
     <View
       testID={testID}
       accessible
       accessibilityRole="progressbar"
       accessibilityLabel={label}
-      aria-valuemin={min}
-      aria-valuemax={max}
-      aria-valuenow={now}
+      aria-valuemin={accessibilityValue.min}
+      aria-valuemax={accessibilityValue.max}
+      aria-valuenow={accessibilityValue.now}
       aria-valuetext={valueText}
-      accessibilityValue={{ min, max, now, text: valueText }}
+      accessibilityValue={accessibilityValue}
       style={{ gap: theme.spacing.gap }}
     >
       <Text style={styles.text}>

@@ -310,6 +310,23 @@ test("progress supports localized value text and finite extreme ranges", () => {
   assert.doesNotMatch(html, /NaN|Infinity/);
 });
 
+for (const [min, max, value, percent] of [
+  [1e16, 1e16 + 8, 1e16 + 2, 25],
+  [-1e16 - 8, -1e16, -1e16 - 2, 75],
+  [0, Number.MIN_VALUE * 4, Number.MIN_VALUE, 25],
+  [0.1, 0.9, 0.5, 50],
+]) {
+  test(`progress preserves the fraction in the range ${min} to ${max}`, () => {
+    const html = render(
+      alternate,
+      React.createElement(Progress, { label: "Completion", min, max, value }),
+    );
+    assert.match(html, new RegExp(`width:${percent}%`));
+    assert.match(html, new RegExp(`aria-valuenow="${value}"`));
+    assert.doesNotMatch(html, /NaN|Infinity/);
+  });
+}
+
 for (const props of [
   { value: NaN },
   { value: Infinity },
