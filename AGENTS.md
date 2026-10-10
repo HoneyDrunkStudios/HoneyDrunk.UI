@@ -11,3 +11,11 @@ Work within the selected request. Preserve unrelated changes and use a separate 
 ## Verification
 
 Use the Node requirement and locked dependencies in this repo. From the root: `npm ci`, `npx playwright install chromium`, then `npm run validate`. That script covers typecheck, lint, component/contracts, declaration generation, the consumer bundle and browser tests. Report VoiceOver/TalkBack, real native rendering and device acceptance separately; Chromium is not native evidence.
+
+## Code Review Rules
+
+Apply the [shared review criteria](https://github.com/HoneyDrunkStudios/HoneyDrunk.Standards/blob/main/HoneyDrunk.Standards/docs/CONVENTIONS.md#code-review) to changed behavior, using the repository boundaries above. Report actionable findings with the failing path, concrete impact and a small corrective action; disclose unavailable evidence. These rules grant no cross-repository access or merge authority.
+
+- Keep platform-neutral tokens and reusable native primitives separate from product themes, navigation, authentication and domain state. Preserve host-supplied React/React Native peers and existing package contracts; avoid app-specific panels or a parallel CSS framework.
+- Trace theme overrides, controlled state and event handling across native/web use. Flag inaccessible focus/labels, broken text scaling, stale state or render loops with a concrete interaction; avoid performance claims based only on component size.
+- Require affected primitive/contract tests and appropriate native or visual evidence for changed interaction. Source-snapshot synchronization is not a package release, and web tests do not establish native accessibility or device behavior.
