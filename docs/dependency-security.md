@@ -1,4 +1,16 @@
-# Dependency advisory assessment — October 3, 2026
+# Dependency advisory assessment
+
+## October 10 remediation and live inventory
+
+GitHub currently lists [Dependabot alert #1](https://github.com/HoneyDrunkStudios/HoneyDrunk.UI/security/dependabot/1) for braces 3.0.3. The live npm audit also found critical [GHSA-pqg4-j6r4-53mv](https://github.com/advisories/GHSA-pqg4-j6r4-53mv) in shell-quote 1.10.0 through react-devtools-core. This second finding was absent from GitHub's open-alert list at the time of inspection; npm affected-package counts and GitHub alert counts are distinct.
+
+`npm update shell-quote --package-lock-only --ignore-scripts` regenerated only the shell-quote lock entry to 1.12.0 within the existing `^1.6.1` consumer range; the first patched release is 1.11.0. A clean `npm ci` and fresh audit confirm shell-quote is no longer reported. The full audit changed from **9 high and 1 critical affected package entries** to **9 high and zero critical**, still exiting 1 for the braces chain. No manifest, peer contract, override or scanner setting changed.
+
+Registry checks still show latest braces 3.0.3, latest micromatch 4.0.8 requiring braces `^3.0.3`, and latest metro-file-map 0.87.1 requiring micromatch `^4.0.4`. The [upstream depth-guard issue](https://github.com/micromatch/braces/issues/70) remains open with no patched release. The proposed React Native 0.72.17 downgrade remains incompatible with the 0.86.3 host contract. Alert #1 therefore remains unresolved; this lockfile update does not fix or dismiss it. Reassess when a compatible patched release or upstream removal exists.
+
+The following October 3 assessment is preserved as historical reachability evidence. It is not proof of current native-device or consumer acceptance.
+
+## October 3 baseline assessment
 
 Status: **unresolved inherited dependency finding**. Full `npm audit --json` and `npm audit --omit=dev --json` both exit 1 with nine high-severity affected package entries. They trace to one advisory, [GHSA-vfj7-8cjw-p6xm / CVE-2026-93687](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm): deeply nested patterns can exhaust the recursive walkers in braces through 3.0.3. The advisory lists no patched version. This assessment narrows demonstrated reachability; it does not suppress the finding or establish clean security.
 
