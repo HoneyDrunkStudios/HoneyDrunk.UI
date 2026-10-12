@@ -59,3 +59,18 @@ Heavy deployed, real-provider and broad-device suites belong to selected staging
 ## Official references checked
 
 Repository runtime versions remain React 19.2.3, RN 0.86.3, RN Web 0.21.3 and TypeScript 6.0.3; no major upgrade. Current docs checked: [RN accessibility](https://reactnative.dev/docs/0.86/accessibility), [Pressable](https://reactnative.dev/docs/0.86/pressable), [Text](https://reactnative.dev/docs/0.86/text), [TextInput](https://reactnative.dev/docs/0.86/textinput), [AccessibilityInfo](https://reactnative.dev/docs/0.86/accessibilityinfo), [RTL](https://reactnative.dev/docs/0.86/i18nmanager), [RN testing](https://reactnative.dev/docs/0.86/testing-overview), [Playwright accessibility](https://playwright.dev/docs/accessibility-testing), and [WCAG 2.2](https://www.w3.org/TR/WCAG22/). Automated tools cover only some accessibility requirements; manual and inclusive user testing remain necessary.
+
+## Sonar analysis and source coverage
+
+The CI Sonar job analyzes both authored packages and build tooling after normal
+validation. Use CI analysis only; disable automatic analysis in the bound
+`HoneyDrunkStudios_HoneyDrunk.UI` project. The existing organization SONAR_TOKEN
+must include this repository. Fork and Dependabot PRs receive normal validation without the token.
+
+`npm run test:coverage` collects V8 coverage through c8 and imports LCOV. The
+CommonJS TypeScript test loaders emit inline source maps to preserve source
+line mapping. Unexecuted package files are included with zero coverage; browser
+tests and data-URL-loaded modules do not add to this report. Coverage is evidence
+for the Node harness, not native rendering, accessibility or device acceptance.
+The scanner waits for the real gate. Check exact-head new-code findings and
+the imported paths before claiming readiness; no gate or rule is suppressed.
