@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Enable CI Sonar analysis with real source-mapped test coverage, preserving validation and secret boundaries.
+
 - Upgrade locked shell-quote to 1.12.0 to fix its critical command-injection advisory; retain the separately documented unpatched braces finding.
 - Add optional semantic focus/progress colors and control size/typography tokens with legacy-theme defaults.
 - Add named, clamped, nonanimated Progress and text Badge primitives.
