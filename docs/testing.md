@@ -65,7 +65,7 @@ Repository runtime versions remain React 19.2.3, RN 0.86.3, RN Web 0.21.3 and Ty
 The CI Sonar job analyzes both authored packages and build tooling after normal
 validation. Use CI analysis only; disable automatic analysis in the bound
 `HoneyDrunkStudios_HoneyDrunk.UI` project. The existing organization SONAR_TOKEN
-must include this repository. Fork PRs receive normal validation without the token.
+must include this repository. Fork and Dependabot PRs receive normal validation without the token.
 
 `npm run test:coverage` collects V8 coverage through c8 and imports LCOV. The
 CommonJS TypeScript test loaders emit inline source maps to preserve source
