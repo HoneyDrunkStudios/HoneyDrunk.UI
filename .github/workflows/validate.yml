@@ -30,11 +30,15 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm run test:coverage
+      - name: Verify measured LCOV is present
+        run: test -s coverage/lcov.info && grep -q '^SF:packages/' coverage/lcov.info && grep -q '^DA:' coverage/lcov.info
       - name: Verify scanner credential binding
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: test -n "$SONAR_TOKEN"
       - name: Analyze authored UI and await the quality gate
         uses: SonarSource/sonarqube-scan-action@c7ee0f9df90b7aa20e8dcf9695dcfe2e7da5b4f2 # v7
+        with:
+          skipSignatureVerification: false
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
