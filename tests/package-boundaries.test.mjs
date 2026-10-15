@@ -34,6 +34,18 @@ const fixtures = [
   ["ui-native", "import auth = require('@app/auth');", 1],
   ["ui-native", "const auth = import(moduleName);", 1],
   ["ui-native", "const auth = require(moduleName);", 1],
+  ["ui-native", "function check(require, value) { return require(value); }", 0],
+  ["ui-native", "function check(require, value) { return require.resolve(value); }", 0],
+  ["ui-native", "function check(require, value) { return require['resolve'](value); }", 0],
+  ["ui-native", "import { require } from './theme'; require(value);", 0],
+  ["ui-native", "const require = (value) => value; require(value);", 0],
+  ["ui-native", "function check(value) { return require(value); }", 1],
+  ["ui-native", "import type { require } from './theme'; require('@app/auth');", 1],
+  ["ui-native", "import { type require } from './theme'; require('@app/auth');", 1],
+  ["ui-native", "type require = string; require('@app/auth');", 1],
+  ["ui-native", "interface require {} require.resolve('@app/auth');", 1],
+  ["ui-native", "declare function require(name: string): unknown; require('@app/auth');", 1],
+  ["ui-native", "function check(require) { type require = string; return require(value); }", 0],
 ];
 
 for (const [packageName, code, expected] of fixtures) {

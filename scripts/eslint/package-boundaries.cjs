@@ -45,6 +45,22 @@ module.exports = {
       });
     }
 
+    function isCommonJsRequire(identifier) {
+      if (identifier.type !== "Identifier" || identifier.name !== "require") return false;
+      for (let scope = context.sourceCode.getScope(identifier); scope; scope = scope.upper) {
+        const variable = scope.set.get("require");
+        if (!variable) continue;
+        if (variable.defs.length === 0) return true;
+        const hasRuntimeBinding = variable.defs.some((definition) =>
+          definition.isVariableDefinition !== false &&
+          definition.node.importKind !== "type" &&
+          definition.parent?.importKind !== "type" &&
+          !definition.node.declare && !definition.parent?.declare);
+        if (hasRuntimeBinding) return false;
+      }
+      return true;
+    }
+
     return {
       ImportDeclaration: (node) => check(node.source, node),
       ExportNamedDeclaration: (node) => { if (node.source) check(node.source, node); },
@@ -54,8 +70,8 @@ module.exports = {
       TSExternalModuleReference: (node) => check(node.expression, node),
       CallExpression(node) {
         const callee = node.callee;
-        const isRequire = callee.type === "Identifier" && callee.name === "require";
-        const isResolve = callee.type === "MemberExpression" && callee.object.type === "Identifier" && callee.object.name === "require" && (callee.computed ? callee.property.value === "resolve" : callee.property.name === "resolve");
+        const isRequire = isCommonJsRequire(callee);
+        const isResolve = callee.type === "MemberExpression" && isCommonJsRequire(callee.object) && (callee.computed ? callee.property.value === "resolve" : callee.property.name === "resolve");
         if (isRequire || isResolve) check(node.arguments[0], node);
       },
     };
