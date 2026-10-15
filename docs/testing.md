@@ -96,3 +96,10 @@ Review still owns those cases and any deliberate change to the allowlist.
 the real root ESLint config and checks that the rule is enabled as an error in
 both packages. These tests run in the existing `npm test`, `npm run validate` and
 CI paths. No empty-test success option or extra test runner is introduced.
+
+The lint override also covers `.mts`/`.cts` (and their declaration forms), using
+Expo's existing TypeScript parser and checks, alongside `.ts`/`.tsx` and the
+JavaScript suffixes. Existing typecheck, declaration-build and package-coverage
+entry globs still target `.ts`/`.tsx`. If explicit-module TypeScript source files
+are introduced, expand those entry globs and verify emitted declarations and
+coverage too; lint support alone does not establish build support.

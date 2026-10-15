@@ -48,23 +48,28 @@ const fixtures = [
   ["ui-native", "function check(require) { type require = string; return require(value); }", 0],
 ];
 
-for (const [packageName, code, expected] of fixtures) {
-  test(`${packageName} boundary: ${code}`, async () => {
-    const [result] = await eslint.lintText(code, {
-      filePath: `packages/${packageName}/src/boundary-fixture.ts`,
+for (const extension of ["ts", "tsx", "mts", "cts"]) {
+  for (const [packageName, code, expected] of fixtures) {
+    test(`${packageName} .${extension} boundary: ${code}`, async () => {
+      const [result] = await eslint.lintText(code, {
+        filePath: `packages/${packageName}/src/boundary-fixture.${extension}`,
+      });
+      assert.equal(result.fatalErrorCount, 0, JSON.stringify(result.messages));
+      const messages = result.messages.filter((message) => message.ruleId === ruleId);
+      assert.equal(messages.length, expected, JSON.stringify(result.messages));
+      assert.ok(messages.every((message) => message.severity === 2));
     });
-    assert.equal(result.fatalErrorCount, 0, JSON.stringify(result.messages));
-    const messages = result.messages.filter((message) => message.ruleId === ruleId);
-    assert.equal(messages.length, expected, JSON.stringify(result.messages));
-    assert.ok(messages.every((message) => message.severity === 2));
-  });
+  }
+
 }
 
 test('both package source trees enable the boundary rule as an error', async () => {
   assert.ok(fixtures.some(([, , expected]) => expected === 0));
   assert.ok(fixtures.some(([, , expected]) => expected > 0));
   for (const name of ['ui-tokens', 'ui-native']) {
-    const config = await eslint.calculateConfigForFile(`packages/${name}/src/index.tsx`);
-    assert.equal(config.rules[ruleId][0], 2);
+    for (const extension of ["ts", "tsx", "mts", "cts", "js", "jsx", "mjs", "cjs"]) {
+      const config = await eslint.calculateConfigForFile(`packages/${name}/src/index.${extension}`);
+      assert.equal(config.rules[ruleId][0], 2);
+    }
   }
 });
