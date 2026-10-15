@@ -10,7 +10,7 @@ Work within the selected request. Preserve unrelated changes and use a separate 
 
 ## Verification
 
-Use the Node requirement and locked dependencies in this repo. From the root: `npm ci`, `npx playwright install chromium`, then `npm run validate`. That script covers typecheck, lint, component/contracts, declaration generation, the consumer bundle and browser tests. Report VoiceOver/TalkBack, real native rendering and device acceptance separately; Chromium is not native evidence.
+Use the Node requirement and locked dependencies in this repo. From the root: `npm ci`, `npx playwright install chromium`, then `npm run validate`. That script covers typecheck, lint (including package import boundaries), positive/negative boundary fixtures, component/contracts, declaration generation, the consumer bundle and browser tests. Report VoiceOver/TalkBack, real native rendering and device acceptance separately; Chromium is not native evidence.
 
 ## Code Review Rules
 
