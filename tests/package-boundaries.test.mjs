@@ -6,6 +6,21 @@ import { ESLint } from "eslint";
 const eslint = new ESLint();
 const ruleId = "architecture/package-boundaries";
 const fixtures = [
+  ["ui-native", "export {}; declare module '@app/auth' {}", 1],
+  ["ui-native", "export {}; declare module 'react' {}", 0],
+  ["ui-tokens", "export {}; declare module 'react-native' {}", 1],
+  ["ui-native", String.raw`/// <reference path="..\..\..\apps\auth.d.ts" />`, 1],
+  ["ui-native", String.raw`/// <reference path="C:\apps\auth.d.ts" />`, 1],
+  ["ui-native", String.raw`import auth from '..\\..\\..\\apps/auth';`, 1],
+  ["ui-tokens", '/// <reference path="theme.d.ts" />', 0],
+  ["ui-native", '/// <reference types="react" />', 0],
+  ["ui-native", '/// <reference path="../../../apps/auth.d.ts" />', 1],
+  ["ui-tokens", '/// <reference path="../../ui-native/src/index.tsx" />', 1],
+  ["ui-tokens", '/// <reference types="react-native" />', 1],
+  ["ui-native", '/// <reference types="app-auth" />', 1],
+  ["ui-native", '/// <reference path="/apps/auth.d.ts" />', 1],
+  ["ui-native", '// <reference types="app-auth" />', 0],
+  ["ui-native", `const text = '/// <reference types="app-auth" />';`, 0],
   ["ui-tokens", "import type { Theme } from './theme';", 0],
   ["ui-tokens", "export const label = 'react-native'; // import 'react-native'", 0],
   ["ui-native", "import React from 'react';", 0],
@@ -73,3 +88,28 @@ test('both package source trees enable the boundary rule as an error', async () 
     }
   }
 });
+
+for (const extension of ["js", "jsx", "mjs", "cjs"]) {
+  test(`triple-slash references in .${extension}`, async () => {
+    for (const [code, expected] of [
+      ['/// <reference path="theme.d.ts" />', 0],
+      ['/// <reference types="app-auth" />', 1],
+      [String.raw`/// <reference path="..\..\..\apps\auth.d.ts" />`, 1],
+    ]) {
+      const [result] = await eslint.lintText(code, { filePath: `packages/ui-native/src/fixture.${extension}` });
+      assert.equal(result.fatalErrorCount, 0, JSON.stringify(result.messages));
+      assert.equal(result.messages.filter((message) => message.ruleId === ruleId).length, expected);
+    }
+  });
+}
+
+for (const extension of ["ts", "tsx", "mts", "cts", "d.ts", "d.mts", "d.cts"]) {
+  test(`ambient declaration or augmentation in .${extension}`, async () => {
+    const [result] = await eslint.lintText("declare module '@app/auth' {}", {
+      filePath: `packages/ui-native/src/fixture.${extension}`,
+    });
+    assert.equal(result.fatalErrorCount, 0, JSON.stringify(result.messages));
+    const expected = extension === "mts" || extension === "cts" ? 1 : 0;
+    assert.equal(result.messages.filter((message) => message.ruleId === ruleId).length, expected);
+  });
+}

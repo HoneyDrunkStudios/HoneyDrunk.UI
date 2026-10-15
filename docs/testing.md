@@ -87,7 +87,14 @@ and product domain dependencies belong in consumers; adding them to a manifest
 does not silently expand the allowlist.
 
 The AST check covers static imports, re-exports, TypeScript import types/import
-equals, dynamic imports and direct `require`/`require.resolve` calls. Nonliteral
+equals, dynamic imports and direct `require`/`require.resolve` calls. The existing
+TypeScript compiler parser also checks triple-slash `path` and `types` references
+against the same boundary in JS and TS sources, and identifies external module
+augmentations. Standalone ambient declarations in script/declaration files
+define modules rather than import them; `.mts`/`.cts` source files are inherently
+external modules, so their declarations are checked as augmentations. Ordinary comments and string literals are not imports. JSDoc type imports
+(`import()` and `@import`) are outside this bounded rule set; review owns those
+type-only dependencies. This rule does not claim whole-program semantic analysis. Nonliteral
 module specifiers fail closed. This is an architectural lint check, not a security
 sandbox or a semantic detector for app logic copied into a local source file.
 Review still owns those cases and any deliberate change to the allowlist.

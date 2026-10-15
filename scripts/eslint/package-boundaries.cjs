@@ -1,5 +1,6 @@
 /* global __dirname */
 const path = require("node:path");
+const { preProcessFile } = require("typescript");
 
 const packagesRoot = path.resolve(__dirname, "../../packages");
 const allowedDependencies = {
@@ -23,13 +24,15 @@ module.exports = {
     const dependencies = allowedDependencies[packageName];
     if (!dependencies) return {};
     const sourceRoot = path.join(packagesRoot, packageName, "src");
+    let importedReferences = [];
+    const explicitModule = /\.[mc]ts$/.test(filename) && !/\.d\.[mc]ts$/.test(filename);
 
     function check(source, node) {
       if (!source || typeof source.value !== "string") {
         context.report({ node, messageId: "dynamic" });
         return;
       }
-      const specifier = source.value;
+      const specifier = source.value.replaceAll("\\", "/");
       if (dependencies.has(specifier)) return;
       if (specifier === "." || specifier === ".." || specifier.startsWith("./") || specifier.startsWith("../")) {
         const relative = path.relative(sourceRoot, path.resolve(path.dirname(filename), specifier));
@@ -61,11 +64,35 @@ module.exports = {
       return true;
     }
 
+    function checkReference(reference, value, node) {
+      check({ value, loc: {
+        start: context.sourceCode.getLocFromIndex(reference.pos),
+        end: context.sourceCode.getLocFromIndex(reference.end),
+      } }, node);
+    }
+
     return {
+      Program(node) {
+        const references = preProcessFile(context.sourceCode.text, true, false);
+        importedReferences = references.importedFiles;
+        for (const reference of references.referencedFiles) {
+          const fileName = reference.fileName.replaceAll("\\", "/");
+          const specifier = path.isAbsolute(fileName) || /^[A-Za-z]:\//.test(fileName) ? fileName : `./${fileName}`;
+          checkReference(reference, specifier, node);
+        }
+        for (const reference of references.typeReferenceDirectives) {
+          checkReference(reference, reference.fileName, node);
+        }
+      },
       ImportDeclaration: (node) => check(node.source, node),
       ExportNamedDeclaration: (node) => { if (node.source) check(node.source, node); },
       ExportAllDeclaration: (node) => check(node.source, node),
       ImportExpression: (node) => check(node.source, node),
+      TSModuleDeclaration(node) {
+        // Standalone ambient declarations define modules; only augmentations
+        // recognized as dependencies by TypeScript should be checked.
+        if (node.id.type === "Literal" && (explicitModule || importedReferences.some((reference) => reference.pos === node.id.range[0]))) check(node.id, node);
+      },
       TSImportType: (node) => check(node.argument, node),
       TSExternalModuleReference: (node) => check(node.expression, node),
       CallExpression(node) {
