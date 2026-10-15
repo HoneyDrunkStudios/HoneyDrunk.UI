@@ -36,8 +36,6 @@ const fixtures = [
   ["ui-native", "const auth = require(moduleName);", 1],
 ];
 
-assert.ok(fixtures.some(([, , expected]) => expected === 0));
-assert.ok(fixtures.some(([, , expected]) => expected > 0));
 for (const [packageName, code, expected] of fixtures) {
   test(`${packageName} boundary: ${code}`, async () => {
     const [result] = await eslint.lintText(code, {
@@ -51,6 +49,8 @@ for (const [packageName, code, expected] of fixtures) {
 }
 
 test('both package source trees enable the boundary rule as an error', async () => {
+  assert.ok(fixtures.some(([, , expected]) => expected === 0));
+  assert.ok(fixtures.some(([, , expected]) => expected > 0));
   for (const name of ['ui-tokens', 'ui-native']) {
     const config = await eslint.calculateConfigForFile(`packages/${name}/src/index.tsx`);
     assert.equal(config.rules[ruleId][0], 2);
