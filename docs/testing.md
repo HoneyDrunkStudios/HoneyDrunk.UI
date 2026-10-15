@@ -74,3 +74,39 @@ tests and data-URL-loaded modules do not add to this report. Coverage is evidenc
 for the Node harness, not native rendering, accessibility or device acceptance.
 The scanner waits for the real gate. Check exact-head new-code findings and
 the imported paths before claiming readiness; no gate or rule is suppressed.
+
+## Enforced package import boundaries
+
+`npm run lint` applies the local `architecture/package-boundaries` ESLint rule to
+both package source trees. Tokens can import only their own source. Native
+primitives can import their own source plus the existing public dependencies
+`react`, `react-native` and `@honeydrunk/ui-tokens`. Relative paths cannot escape
+that package's `src` directory. Importing token internals by relative path is not
+a substitute for the public workspace entrypoint. Navigation, authentication
+and product domain dependencies belong in consumers; adding them to a manifest
+does not silently expand the allowlist.
+
+The AST check covers static imports, re-exports, TypeScript import types/import
+equals, dynamic imports and direct `require`/`require.resolve` calls. The existing
+TypeScript compiler parser also checks triple-slash `path` and `types` references
+against the same boundary in JS and TS sources, and identifies external module
+augmentations. Standalone ambient declarations in script/declaration files
+define modules rather than import them; `.mts`/`.cts` source files are inherently
+external modules, so their declarations are checked as augmentations. Ordinary comments and string literals are not imports. JSDoc type imports
+(`import()` and `@import`) are outside this bounded rule set; review owns those
+type-only dependencies. This rule does not claim whole-program semantic analysis. Nonliteral
+module specifiers fail closed. This is an architectural lint check, not a security
+sandbox or a semantic detector for app logic copied into a local source file.
+Review still owns those cases and any deliberate change to the allowlist.
+
+`tests/package-boundaries.test.mjs` exercises positive and negative fixtures with
+the real root ESLint config and checks that the rule is enabled as an error in
+both packages. These tests run in the existing `npm test`, `npm run validate` and
+CI paths. No empty-test success option or extra test runner is introduced.
+
+The lint override also covers `.mts`/`.cts` (and their declaration forms), using
+Expo's existing TypeScript parser and checks, alongside `.ts`/`.tsx` and the
+JavaScript suffixes. Existing typecheck, declaration-build and package-coverage
+entry globs still target `.ts`/`.tsx`. If explicit-module TypeScript source files
+are introduced, expand those entry globs and verify emitted declarations and
+coverage too; lint support alone does not establish build support.
