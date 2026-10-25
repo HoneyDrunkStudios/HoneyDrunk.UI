@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Allow host-supplied React Native 0.88 for Expo SDK 58 consumers while retaining React Native 0.86 compatibility.
+
 - Enable CI Sonar analysis with real source-mapped test coverage, preserving validation and secret boundaries.
 
 - Upgrade locked shell-quote to 1.12.0 to fix its critical command-injection advisory; retain the separately documented unpatched braces finding.
