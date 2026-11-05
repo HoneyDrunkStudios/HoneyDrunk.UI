@@ -9,7 +9,7 @@ jobs:
     uses: HoneyDrunkStudios/HoneyDrunk.Actions/.github/workflows/job-node-workspace.yml@1d0be2dc9d3ccb010d243a9c9d6c8dbe91efb97b
     with:
       node-version: "22"
-      install-command: npm ci --ignore-scripts
+      install-command: npm install --global npm@11.16.0 && npm ci --ignore-scripts
       lint-command: npm run typecheck && npm run lint
       build-command: npm run build
       test-command: npx playwright install --with-deps chromium && npm test && npx playwright test
@@ -28,6 +28,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: Use the validated npm resolver
+        run: npm install --global npm@11.16.0
       - run: npm ci --ignore-scripts
       - run: npm run test:coverage
       - name: Verify measured LCOV is present
