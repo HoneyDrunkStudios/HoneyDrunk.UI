@@ -8,7 +8,7 @@ jobs:
   ui:
     uses: HoneyDrunkStudios/HoneyDrunk.Actions/.github/workflows/job-node-workspace.yml@1d0be2dc9d3ccb010d243a9c9d6c8dbe91efb97b
     with:
-      node-version: "22"
+      node-version: "22.23.5"
       install-command: npm install --global npm@11.16.0 && npm ci --ignore-scripts
       lint-command: npm run typecheck && npm run lint
       build-command: npm run build
@@ -26,7 +26,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v5
         with:
-          node-version: '22'
+          node-version: '22.23.5'
           cache: npm
       - name: Use the validated npm resolver
         run: npm install --global npm@11.16.0

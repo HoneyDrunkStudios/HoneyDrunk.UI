@@ -13,7 +13,7 @@ Navigation, authentication, domain state, quest policy, branding and artwork sta
 
 ## Development
 
-Use Node 22.13 or later with npm 11.16.0, then run:
+Use Node 22.23.5 (pinned in [.nvmrc](.nvmrc)) with npm 11.16.0, then run:
 
 ```sh
 npm ci
@@ -26,7 +26,7 @@ npm run test:web
 
 `npm run validate` runs typecheck, lint with zero warnings, component/contract tests, declaration generation, a real consumer bundle and Chromium integration tests. The browser suite checks keyboard activation/focus, disabled/busy guards, theme switching, error association and input preservation, RTL, twofold text growth, reduced motion and axe WCAG A/AA rules. Screenshots go to `artifacts/screenshots`; these are review evidence, not approved visual baselines. The generic fixture is test code, not a product screen. See [testing responsibilities and gates](docs/testing.md) and [the validation record](docs/validation.md).
 
-CI reuses the pinned HoneyDrunk.Actions Node workflow with the same build, checks and browser tests. Both CI lanes install npm 11.16.0: npm 10.9.9 rejects this lockfile's version-scoped security overrides. Native rendering, VoiceOver/TalkBack and real device acceptance remain separate.
+CI reuses the pinned HoneyDrunk.Actions Node workflow with Node 22.23.5 and the same build, checks and browser tests. The root manifest also allows patched Node 24.22.3+ and 26.13.1+, including the [November 2026 Node security fixes](https://nodejs.org/en/blog/vulnerability/november-2026-security-releases). Both CI lanes install npm 11.16.0: npm 10.9.9 rejects this lockfile's version-scoped security overrides. Native rendering, VoiceOver/TalkBack and real device acceptance remain separate.
 
 ## Additive primitives and states
 
